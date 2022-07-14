@@ -1,2 +1,7 @@
-A sample command-line application with an entrypoint in `bin/`, library code
-in `lib/`, and example unit test in `test/`.
+## dart transform swagger to dart class
+
+- install 
+ ```
+ dart pub global activate --source git https://github.com/Invincible1996/swagger2dart.git
+ swagger2dart
+```
