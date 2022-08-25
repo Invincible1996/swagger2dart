@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dart_style/dart_style.dart';
 import 'package:dio/dio.dart';
 import 'package:swagger2dart/extension/string_extension.dart';
-import 'package:swagger2dart/util/index.dart';
 
 final formatter = DartFormatter();
 
@@ -122,30 +121,43 @@ writeContentToStruct(response, List value) {
   var sb = StringBuffer();
   for (var item in value) {
     if ((item['value'] as Map).containsKey('post')) {
+      // generate request struct
       if ((item['value']['post'] as Map).containsKey('parameters')) {
-        // generate request struct
         if (!sb.toString().contains((item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())) {
           sb.write('''
       class ${(item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef()}{
       ${generateReqVariables(response, (item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
       ${generateConstructor(response, (item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
       ${generateNamedConstructor(response, (item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
+      ${generate2Json(response, (item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
       }
       ''');
           sb.write('''
-          ${generateReqClass(response, (item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
+          ${generateReqClass(response, (item['value']?['post']?['parameters']?.first?['schema']?[r'$ref'] as String).getClassNameByRef())}
           ''');
         }
       }
+      // generate response struct
+      if (!sb
+          .toString()
+          .contains((item['value']?['post']?['responses']?['200']?['schema']?[r'$ref'] as String).getClassNameByRef().split('«').first)) {
+        sb.write('''
+      ${generateResponseClass(
+          response,
+          (item['value']['post']['responses']['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric(),
+        )}
+      ''');
+      }
     } else {
+      // generate request struct
       if ((item['value']['get'] as Map).containsKey('parameters')) {
-        // generate request struct
         if (!sb.toString().contains((item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())) {
           sb.write('''
       class ${(item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef()}{
         ${generateReqVariables(response, (item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
         ${generateConstructor(response, (item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
-      ${generateNamedConstructor(response, (item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
+        ${generateNamedConstructor(response, (item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
+        ${generate2Json(response, (item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
       }
       ''');
           sb.write('''
@@ -153,7 +165,55 @@ writeContentToStruct(response, List value) {
           ''');
         }
       }
+      // generate response struct
+      if (!sb.toString().contains(item['value']?['get']?['responses']?['200']?['schema']?[r'$ref']?.getClassNameByRef()?.split('«')?.first ?? '')) {
+        sb.write('''
+      ${generateResponseClass(response, (item['value']['get']['responses']['200']['schema'][r'$ref'] as String).getClassNameByRef())}
+      ''');
+      }
     }
+  }
+
+  return sb.toString();
+}
+
+/// @params
+/// @params
+/// @return
+/// @desc
+generateResponseClass(response, className) {
+  // print('-------------------${(className as String).getReplyEntityGeneric()}');
+  // printMsg('classNameByRef======${(className as String).getReplyEntityGeneric()}');
+  var sb = StringBuffer();
+  // var tempClassName = (className as String).getReplyEntityGeneric();
+  if (className != 'object' && className != 'boolean') {
+    (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
+      if (!sb.toString().contains(className)) {
+        sb.write('''
+        class $className{
+        ${generateReqVariables(response, className)}
+        ${generateConstructor(response, className)}
+        ${generateNamedConstructor(response, className)}
+        ${generate2Json(response, className)}
+        }
+        ''');
+      }
+      if ((value as Map).containsKey('items') && (value['items'] as Map).containsKey(r'$ref')) {
+        print(value['items']);
+        // generateResponseClass(response, getListGeneric(value));
+        // if (!sb.toString().contains(className)) {
+        //   sb.write('''
+        // class $className{
+        // ${generateReqVariables(response, className)}
+        // ${generateConstructor(response, className)}
+        // ${generateNamedConstructor(response, className)}
+        // ${generate2Json(response, className)}
+        // }
+        // ''');
+        // }
+        generateResponseClass(response, getListGeneric(value));
+      } else {}
+    });
   }
   return sb.toString();
 }
@@ -178,14 +238,77 @@ generateNamedConstructor(response, classNameByRef) {
 /// @desc generateReqNamedConstructorVariables
 generateReqNamedConstructorVariables(response, className) {
   var sb = StringBuffer();
-  printMsg(response.data['definitions'][className]);
+  // printMsg(response.data['definitions'][className]);
 
   (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
-    print(key);
-    print(value['type']);
-    sb.write('''
-    $key = json[$key];
+    // print(key);
+    // print(value['type']);
+
+    if (value['type'] == 'array') {
+      if ((value['items'] as Map).containsKey('type')) {
+        sb.write('''
+    $key = json['$key'];
     ''');
+      } else {
+        sb.write('''
+      if($key != null){
+        $key = <${getListGeneric(value)}>[];
+        json['$key'].forEach((v){
+        $key!.add(${getListGeneric(value)}.fromJson(v));
+        });
+      }
+      ''');
+      }
+    } else {
+      sb.write('''
+    $key = json['$key'];
+    ''');
+    }
+  });
+
+  return sb.toString();
+}
+
+/// @params [classNameByRef]
+/// @params [response]
+/// @return
+/// @desc
+generate2Json(response, classNameByRef) {
+  var sb = StringBuffer();
+  sb.write('''
+   Map<String, dynamic> toJson() {
+  final Map<String, dynamic> data = new Map<String, dynamic>();
+  ${generateReq2JsonVariables(response, classNameByRef)}
+    return data;
+  }
+  ''');
+  return sb.toString();
+}
+
+/// @params
+/// @params
+/// @return
+/// @desc
+generateReq2JsonVariables(response, className) {
+  // get request dto from definitions
+  var sb = StringBuffer();
+  // printMsg(response.data['definitions'][className]);
+
+  (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
+    // print(key);
+    // print(value['type']);
+
+    if (value['type'] == 'array' && !value['items'].containsKey('type')) {
+      sb.write('''
+       if ($key != null) {
+      data['$key'] = $key!.map((v) => v.toJson()).toList();
+    }
+      ''');
+    } else {
+      sb.write('''
+    data['$key'] = $key;
+    ''');
+    }
   });
 
   return sb.toString();
@@ -213,11 +336,11 @@ generateConstructor(response, classNameByRef) {
 generateReqConstructorVariables(response, className) {
   // get request dto from definitions
   var sb = StringBuffer();
-  printMsg(response.data['definitions'][className]);
+  // printMsg(response.data['definitions'][className]);
 
   (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
-    print(key);
-    print(value['type']);
+    // print(key);
+    // print(value['type']);
     sb.write('''
     this.$key,
     ''');
@@ -239,8 +362,10 @@ generateReqClass(response, className) {
       ${generateReqVariables(response, getListGeneric(value))}
       ${generateConstructor(response, getListGeneric(value))}
       ${generateNamedConstructor(response, getListGeneric(value))}
+      ${generate2Json(response, getListGeneric(value))}
      }
       ''');
+      generateReqClass(response, getListGeneric(value));
     }
   });
   return sb.toString();
@@ -253,11 +378,13 @@ generateReqClass(response, className) {
 generateReqVariables(response, className) {
   // get request dto from definitions
   var sb = StringBuffer();
-  printMsg(response.data['definitions'][className]);
+  // printMsg(response.data['definitions'][className]);
+
+  print('------9999-------${response.data['definitions'][className]['properties']}');
 
   (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
-    print(key);
-    print(value['type']);
+    // print(key);
+    // print(value['type']);
     if (value['type'] == 'string') {
       sb.write('''
       /// ${value['description']};
@@ -344,7 +471,7 @@ generateVariable(String pKey, Map pValue) {
 /// @desc
 getListGeneric(Map value) {
   if (value.containsKey('items')) {
-    print(value['items']);
+    // print(value['items']);
     if ((value['items'] as Map).containsKey(r'$ref')) {
       return (value['items'][r'$ref'] as String).getClassNameByRef();
     } else if (value['items']['type'] == 'integer') {
@@ -385,7 +512,7 @@ void createFileRecursively(String filename, String content) {
   var file = File(filename);
   // if (!file.existsSync()) {
   file.create(recursive: true);
-  file.writeAsString(content);
-  // file.writeAsString(formatter.format(content));
+  // file.writeAsString(content);
+  file.writeAsString(formatter.format(content));
   // }
 }

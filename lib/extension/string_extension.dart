@@ -40,7 +40,15 @@ extension StringExtension on String {
   /// @params
   /// @return
   /// @desc
-  getClassNameByRef() {
+  String getClassNameByRef() {
     return split('/').last;
+  }
+
+  /// @params
+  /// @params
+  /// @return
+  /// @desc
+  getReplyEntityGeneric() {
+    return split("«").last.split("»").first;
   }
 }
