@@ -23,7 +23,8 @@ fetchData() async {
   // Printing the name
   // print("swagger_url======$url");
 
-  BaseOptions options = BaseOptions()..baseUrl = 'https://t-k8s-app.visioneschool.com';
+  BaseOptions options = BaseOptions()
+    ..baseUrl = 'https://t-k8s-app.visioneschool.com';
 
   Dio dio = Dio(options);
   // ..interceptors.add(
@@ -40,7 +41,8 @@ fetchData() async {
 
   var response = await dio.post('/swagger/visioncup/v2/api-docs');
 
-  var rootDir = (response.data['info']['title'] as String).transformClassName2FileName();
+  var rootDir =
+      (response.data['info']['title'] as String).transformClassName2FileName();
   await Directory('package').create();
   await Directory('package/net').create();
 
@@ -50,19 +52,19 @@ fetchData() async {
 
   createFileRecursively('package/$rootDir/struct.dart', '''
   /// GENERATED CODE - DO NOT MODIFY BY HAND
-       /// **************************************************************************
-       /// struct.dart
-       /// **************************************************************************
+  /// **************************************************************************
+  /// struct.dart
+  /// **************************************************************************
   ${generateStructContent(response.data)}
   ''');
   createFileRecursively('package/$rootDir/service.dart', '''
   /// GENERATED CODE - DO NOT MODIFY BY HAND
-       /// **************************************************************************
-       /// struct.dart
-       /// **************************************************************************
+  /// **************************************************************************
+  /// service.dart
+  /// **************************************************************************
 
-       import 'struct.dart';
-       import '../net/http_util.dart';
+  import 'struct.dart';
+  import '../net/http_util.dart';
   class ${response.data['info']['title']}Service {
   ${generateServiceContent(response.data)}
   }
@@ -108,14 +110,15 @@ generateServiceContent(Map data) {
   return sb.toString();
 }
 
-/// @params
-/// @params
+/// @params [data]
 /// @return
-/// @desc
+/// @desc generateReturnContent
 generateReturnContent(Map data) {
   if (data.containsKey(r'$ref')) {
-    if ((data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'object' ||
-        (data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'boolean') {
+    if ((data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() ==
+            'object' ||
+        (data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() ==
+            'boolean') {
       return 'response;';
     }
     return '${(data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric()}.fromJson(response);';
@@ -123,21 +126,32 @@ generateReturnContent(Map data) {
   return 'response;';
 }
 
-/// @params
-/// @params
+/// @params [data]
 /// @return
-/// @desc
+/// @desc generateResponseType
 generateResponseType(Map data) {
   if ((data['200']['schema'] as Map).containsKey(r'$ref')) {
-    return (data['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'object' ||
-            (data['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'boolean'
+    return (data['200']['schema'][r'$ref'] as String)
+                    .getClassNameByRef()
+                    .getReplyEntityGeneric() ==
+                'object' ||
+            (data['200']['schema'][r'$ref'] as String)
+                    .getClassNameByRef()
+                    .getReplyEntityGeneric() ==
+                'boolean'
         ? 'dynamic'
-        : (data['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric();
+        : (data['200']['schema'][r'$ref'] as String)
+            .getClassNameByRef()
+            .getReplyEntityGeneric();
   } else {
     return 'dynamic';
   }
 }
 
+/// @params
+/// @params
+/// @return
+/// @desc
 generatePostData(Map data) {
   if (data.containsKey('parameters')) {
     return 'data: input.toJson(),';
@@ -182,7 +196,7 @@ generateStructContent(Map value) {
 /// @params
 /// @params
 /// @return
-/// @desc
+/// @desc generate2Json
 generate2Json(String className, Map data) {
   var sb = StringBuffer();
   sb.write('''
@@ -190,7 +204,8 @@ generate2Json(String className, Map data) {
   final Map<String, dynamic> data = {};
   ''');
   (data['properties'] as Map).forEach((key, value) {
-    if (value['type'] == 'array' && !(value['items'] as Map).containsKey('type')) {
+    if (value['type'] == 'array' &&
+        !(value['items'] as Map).containsKey('type')) {
       sb.write('''
       if ($key != null) {
       data['$key'] = $key!.map((v) => v.toJson()).toList();
@@ -213,7 +228,7 @@ generate2Json(String className, Map data) {
 /// @params
 /// @params
 /// @return
-/// @desc
+/// @desc generateConstructors
 generateConstructors(String className, Map data) {
   var sb = StringBuffer();
   sb.write('''
@@ -234,14 +249,15 @@ generateConstructors(String className, Map data) {
 /// @params
 /// @params
 /// @return
-/// @desc
+/// @desc generateNamedConstructors
 generateNamedConstructors(String className, Map data) {
   var sb = StringBuffer();
   sb.write('''
   $className.fromJson(Map<String, dynamic> json) {
   ''');
   (data['properties'] as Map).forEach((key, value) {
-    if (value['type'] == 'array' && !(value['items'] as Map).containsKey('type')) {
+    if (value['type'] == 'array' &&
+        !(value['items'] as Map).containsKey('type')) {
       sb.write('''
       if(json['$key'] != null){
         $key = <${getListGeneric(value)}>[];
@@ -301,7 +317,7 @@ generateVariables(Map data) {
 /// @params
 /// @params
 /// @return
-/// @desc
+/// @desc getListGeneric
 getListGeneric(Map value) {
   if (value.containsKey('items')) {
     if ((value['items'] as Map).containsKey(r'$ref')) {
@@ -314,9 +330,11 @@ getListGeneric(Map value) {
   }
 }
 
+/// @params
+/// @params
+/// @return
+/// @desc createFileRecursively
 void createFileRecursively(String filename, String content) {
-  // Create a new directory, recursively creating non-existent directories.
-  // Directory.fromPath(Path(filename).directoryPath).createSync(recursive: true);
   var file = File(filename);
   // if (!file.existsSync()) {
   file.create(recursive: true);
