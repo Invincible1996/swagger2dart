@@ -51,4 +51,27 @@ extension StringExtension on String {
   getReplyEntityGeneric() {
     return split("«").last.split("»").first;
   }
+
+  /// @params
+  /// @params
+  /// @return
+  /// @desc
+  transformClassName2FileName() {
+    var str = '';
+    var newList = runes.map((int rune) {
+      var character = String.fromCharCode(rune);
+      if (character.toUpperCase() == character) {
+        str += '_${character.toLowerCase()}';
+        return '_${character.toLowerCase()}';
+      } else {
+        str += character;
+        return character;
+      }
+    }).toList();
+    // for (var item in newList) {
+    //   str += item;
+    // }
+    print(str.replaceFirst('_', ''));
+    return str.replaceFirst('_', '');
+  }
 }

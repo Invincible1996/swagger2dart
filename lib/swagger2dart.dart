@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dart_style/dart_style.dart';
 import 'package:dio/dio.dart';
+import 'package:swagger2dart/constant.dart';
 import 'package:swagger2dart/extension/string_extension.dart';
 
 final formatter = DartFormatter();
@@ -10,6 +11,10 @@ int calculate() {
   return 6 * 7;
 }
 
+/// @params
+/// @params
+/// @return
+/// @desc
 fetchData() async {
   print("请输入swagger api url");
   // Reading name of the Geek
@@ -34,145 +39,173 @@ fetchData() async {
   // );
 
   var response = await dio.post('/swagger/visioncup/v2/api-docs');
-  var formatMap = {};
-  // generate struct
-  // generateStruct(response);
 
-  // generate service
-  generateService(response, formatMap);
-}
+  var rootDir = (response.data['info']['title'] as String).transformClassName2FileName();
+  await Directory('package').create();
+  await Directory('package/net').create();
 
-/// @params
-/// @params
-/// @return
-/// @desc generateService
-void generateService(Response<dynamic> response, Map<dynamic, dynamic> formatMap) {
-  (response.data['paths'] as Map).forEach((key, value) {
-    // print(key);
-    // print((value as Map).containsKey('post'));
-    if ((value).containsKey('post')) {
-      if (!formatMap.containsKey(value['post']['tags']?.first)) {
-        formatMap.putIfAbsent(
-            value['post']['tags']?.first,
-            () => [
-                  {
-                    'path': key,
-                    'value': value,
-                  }
-                ]);
-      } else {
-        formatMap[value['post']['tags']?.first].add({
-          'path': key,
-          'value': value,
-        });
-      }
-    } else {
-      if (!formatMap.containsKey(value['get']['tags']?.first)) {
-        formatMap.putIfAbsent(
-            value['get']['tags']?.first,
-            () => [
-                  {
-                    'path': key,
-                    'value': value,
-                  }
-                ]);
-      } else {
-        formatMap[value['get']['tags']?.first].add({
-          'path': key,
-          'value': value,
-        });
-      }
-    }
-  });
-  formatMap.forEach((key, value) {
-    // create directory
-    Directory('struct/${(key as String).formatFileName()}').create();
+  await initDio();
 
-    // create struct.dart
-    createFileRecursively(
-      'struct/${key.formatFileName()}/struct.dart',
-      '''/// GENERATED CODE - DO NOT MODIFY BY HAND
-      /// **************************************************************************
-      /// struct.dart
-      /// **************************************************************************
-      ${writeContentToStruct(response, value)}
-        ''',
-    );
+  await Directory('package/$rootDir').create();
 
-    // createFileRecursively(
-    //   'service/$key.dart'.formatFileName(),
-    //   '''
-    //     /// @params
-    //     /// @return
-    //     /// @desc
-    //     class ${(key).transformFileNameToClassName()} {
-    //       ${generateDescription(value)}
-    //     }
-    //     ''',
-    // );
-  });
-}
+  createFileRecursively('package/$rootDir/struct.dart', '''
+  /// GENERATED CODE - DO NOT MODIFY BY HAND
+       /// **************************************************************************
+       /// struct.dart
+       /// **************************************************************************
+  ${generateStructContent(response.data)}
+  ''');
+  createFileRecursively('package/$rootDir/service.dart', '''
+  /// GENERATED CODE - DO NOT MODIFY BY HAND
+       /// **************************************************************************
+       /// struct.dart
+       /// **************************************************************************
 
-/// @params
-/// @params
-/// @return
-/// @desc writeContentToStruct
-writeContentToStruct(response, List value) {
-  var sb = StringBuffer();
-  for (var item in value) {
-    if ((item['value'] as Map).containsKey('post')) {
-      // generate request struct
-      if ((item['value']['post'] as Map).containsKey('parameters')) {
-        if (!sb.toString().contains((item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())) {
-          sb.write('''
-      class ${(item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef()}{
-      ${generateReqVariables(response, (item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
-      ${generateConstructor(response, (item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
-      ${generateNamedConstructor(response, (item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
-      ${generate2Json(response, (item['value']['post']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
-      }
-      ''');
-          sb.write('''
-          ${generateReqClass(response, (item['value']?['post']?['parameters']?.first?['schema']?[r'$ref'] as String).getClassNameByRef())}
-          ''');
-        }
-      }
-      // generate response struct
-      if (!sb
-          .toString()
-          .contains((item['value']?['post']?['responses']?['200']?['schema']?[r'$ref'] as String).getClassNameByRef().split('«').first)) {
-        sb.write('''
-      ${generateResponseClass(
-          response,
-          (item['value']['post']['responses']['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric(),
-        )}
-      ''');
-      }
-    } else {
-      // generate request struct
-      if ((item['value']['get'] as Map).containsKey('parameters')) {
-        if (!sb.toString().contains((item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())) {
-          sb.write('''
-      class ${(item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef()}{
-        ${generateReqVariables(response, (item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
-        ${generateConstructor(response, (item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
-        ${generateNamedConstructor(response, (item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
-        ${generate2Json(response, (item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
-      }
-      ''');
-          sb.write('''
-          ${generateReqClass(response, (item['value']['get']['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef())}
-          ''');
-        }
-      }
-      // generate response struct
-      if (!sb.toString().contains(item['value']?['get']?['responses']?['200']?['schema']?[r'$ref']?.getClassNameByRef()?.split('«')?.first ?? '')) {
-        sb.write('''
-      ${generateResponseClass(response, (item['value']['get']['responses']['200']['schema'][r'$ref'] as String).getClassNameByRef())}
-      ''');
-      }
-    }
+       import 'struct.dart';
+       import '../net/http_util.dart';
+  class ${response.data['info']['title']}Service {
+  ${generateServiceContent(response.data)}
   }
+  ''');
+}
+
+initDio() async {
+  createFileRecursively('package/net/http.dart', Constant.http);
+  createFileRecursively('package/net/cache.dart', Constant.cache);
+  createFileRecursively('package/net/proxy.dart', Constant.proxy);
+  createFileRecursively('package/net/http_util.dart', Constant.httpUtil);
+}
+
+/// @params
+/// @params
+/// @return
+/// @desc generateServiceContent
+generateServiceContent(Map data) {
+  var sb = StringBuffer();
+  (data['paths'] as Map).forEach((key, value) {
+    if ((value as Map).containsKey('post')) {
+      sb.write('''
+    /// @path $key
+    /// @desc ${value['post']['summary']}
+    Future<${generateResponseType(value['post']['responses'])}> ${value['post']['operationId']}(${generateReq(value['post'])}) async{
+     var path = '$key';
+    var response = await HttpUtils.post(path, ${generatePostData(value['post'])});
+    return ${generateReturnContent(value['post']['responses']['200']['schema'])}
+    }
+    ''');
+    } else {
+      sb.write('''
+    /// @path $key
+    /// @desc ${value['get']['summary']}
+    Future<${generateResponseType(value['get']['responses'])}> ${value['get']['operationId']}(${generateReq(value['get'])}) async{
+    var path = '$key';
+    var response = await HttpUtils.get(path);
+     return ${generateReturnContent(value['get']['responses']['200']['schema'])}
+    }
+    ''');
+    }
+  });
+  return sb.toString();
+}
+
+/// @params
+/// @params
+/// @return
+/// @desc
+generateReturnContent(Map data) {
+  if (data.containsKey(r'$ref')) {
+    if ((data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'object' ||
+        (data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'boolean') {
+      return 'response;';
+    }
+    return '${(data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric()}.fromJson(response);';
+  }
+  return 'response;';
+}
+
+/// @params
+/// @params
+/// @return
+/// @desc
+generateResponseType(Map data) {
+  if ((data['200']['schema'] as Map).containsKey(r'$ref')) {
+    return (data['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'object' ||
+            (data['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'boolean'
+        ? 'dynamic'
+        : (data['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric();
+  } else {
+    return 'dynamic';
+  }
+}
+
+generatePostData(Map data) {
+  if (data.containsKey('parameters')) {
+    return 'data: input.toJson(),';
+  } else {
+    return '';
+  }
+}
+
+/// @params
+/// @params
+/// @return
+/// @desc
+generateReq(Map data) {
+  if (data.containsKey('parameters')) {
+    return '${(data['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef()} ${data['parameters'].first['name']}';
+  } else {
+    return '';
+  }
+}
+
+/// @params
+/// @params
+/// @return
+/// @desc
+generateStructContent(Map value) {
+  var sb = StringBuffer();
+  (value['definitions'] as Map).forEach((key, value) {
+    if (!(key as String).contains('ReplyEntity')) {
+      sb.write('''
+     class  $key {
+     ${generateVariables(value)}
+     ${generateConstructors(key, value)}
+     ${generateNamedConstructors(key, value)}
+     ${generate2Json(key, value)}
+     }
+      ''');
+    }
+  });
+  return sb.toString();
+}
+
+/// @params
+/// @params
+/// @return
+/// @desc
+generate2Json(String className, Map data) {
+  var sb = StringBuffer();
+  sb.write('''
+  Map<String, dynamic> toJson() {
+  final Map<String, dynamic> data = {};
+  ''');
+  (data['properties'] as Map).forEach((key, value) {
+    if (value['type'] == 'array' && !(value['items'] as Map).containsKey('type')) {
+      sb.write('''
+      if ($key != null) {
+      data['$key'] = $key!.map((v) => v.toJson()).toList();
+    }
+      ''');
+    } else {
+      sb.write('''
+    data['$key']=$key;
+    ''');
+    }
+  });
+  sb.write('''
+  return data;
+  }
+  ''');
 
   return sb.toString();
 }
@@ -181,105 +214,49 @@ writeContentToStruct(response, List value) {
 /// @params
 /// @return
 /// @desc
-generateResponseClass(response, className) {
-  // print('-------------------${(className as String).getReplyEntityGeneric()}');
-  // printMsg('classNameByRef======${(className as String).getReplyEntityGeneric()}');
-  var sb = StringBuffer();
-  // var tempClassName = (className as String).getReplyEntityGeneric();
-  if (className != 'object' && className != 'boolean') {
-    (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
-      if (!sb.toString().contains(className)) {
-        sb.write('''
-        class $className{
-        ${generateReqVariables(response, className)}
-        ${generateConstructor(response, className)}
-        ${generateNamedConstructor(response, className)}
-        ${generate2Json(response, className)}
-        }
-        ''');
-      }
-      if ((value as Map).containsKey('items') && (value['items'] as Map).containsKey(r'$ref')) {
-        print(value['items']);
-        // generateResponseClass(response, getListGeneric(value));
-        // if (!sb.toString().contains(className)) {
-        //   sb.write('''
-        // class $className{
-        // ${generateReqVariables(response, className)}
-        // ${generateConstructor(response, className)}
-        // ${generateNamedConstructor(response, className)}
-        // ${generate2Json(response, className)}
-        // }
-        // ''');
-        // }
-        generateResponseClass(response, getListGeneric(value));
-      } else {}
-    });
-  }
-  return sb.toString();
-}
-
-/// @params
-/// @params
-/// @return
-/// @desc generateNamedConstructor
-generateNamedConstructor(response, classNameByRef) {
+generateConstructors(String className, Map data) {
   var sb = StringBuffer();
   sb.write('''
-  $classNameByRef.fromJson(Map<String, dynamic> json) {
-  ${generateReqNamedConstructorVariables(response, classNameByRef)}
-  }
+  $className({
   ''');
+  (data['properties'] as Map).forEach((key, _) {
+    sb.write('''
+    this.$key,
+    ''');
+  });
+  sb.write('''
+  });
+  ''');
+
   return sb.toString();
 }
 
 /// @params
 /// @params
 /// @return
-/// @desc generateReqNamedConstructorVariables
-generateReqNamedConstructorVariables(response, className) {
+/// @desc
+generateNamedConstructors(String className, Map data) {
   var sb = StringBuffer();
-  // printMsg(response.data['definitions'][className]);
-
-  (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
-    // print(key);
-    // print(value['type']);
-
-    if (value['type'] == 'array') {
-      if ((value['items'] as Map).containsKey('type')) {
-        sb.write('''
-    $key = json['$key'];
-    ''');
-      } else {
-        sb.write('''
-      if($key != null){
+  sb.write('''
+  $className.fromJson(Map<String, dynamic> json) {
+  ''');
+  (data['properties'] as Map).forEach((key, value) {
+    if (value['type'] == 'array' && !(value['items'] as Map).containsKey('type')) {
+      sb.write('''
+      if(json['$key'] != null){
         $key = <${getListGeneric(value)}>[];
         json['$key'].forEach((v){
         $key!.add(${getListGeneric(value)}.fromJson(v));
         });
       }
       ''');
-      }
     } else {
       sb.write('''
     $key = json['$key'];
     ''');
     }
   });
-
-  return sb.toString();
-}
-
-/// @params [classNameByRef]
-/// @params [response]
-/// @return
-/// @desc
-generate2Json(response, classNameByRef) {
-  var sb = StringBuffer();
   sb.write('''
-   Map<String, dynamic> toJson() {
-  final Map<String, dynamic> data = new Map<String, dynamic>();
-  ${generateReq2JsonVariables(response, classNameByRef)}
-    return data;
   }
   ''');
   return sb.toString();
@@ -288,180 +265,36 @@ generate2Json(response, classNameByRef) {
 /// @params
 /// @params
 /// @return
-/// @desc
-generateReq2JsonVariables(response, className) {
-  // get request dto from definitions
+/// @desc generateVariables
+generateVariables(Map data) {
   var sb = StringBuffer();
-  // printMsg(response.data['definitions'][className]);
-
-  (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
-    // print(key);
-    // print(value['type']);
-
-    if (value['type'] == 'array' && !value['items'].containsKey('type')) {
-      sb.write('''
-       if ($key != null) {
-      data['$key'] = $key!.map((v) => v.toJson()).toList();
-    }
-      ''');
-    } else {
-      sb.write('''
-    data['$key'] = $key;
-    ''');
-    }
-  });
-
-  return sb.toString();
-}
-
-/// @params
-/// @params
-/// @return
-/// @desc 声称构造函数
-generateConstructor(response, classNameByRef) {
-  var sb = StringBuffer();
-  sb.write('''
-  $classNameByRef({
-      ${generateReqConstructorVariables(response, classNameByRef)}
-  });
-  ''');
-
-  return sb.toString();
-}
-
-/// @params
-/// @params
-/// @return
-/// @desc generateReqVariables
-generateReqConstructorVariables(response, className) {
-  // get request dto from definitions
-  var sb = StringBuffer();
-  // printMsg(response.data['definitions'][className]);
-
-  (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
-    // print(key);
-    // print(value['type']);
+  (data['properties'] as Map).forEach((key, value) {
     sb.write('''
-    this.$key,
-    ''');
-  });
-
-  return sb.toString();
-}
-
-/// @params
-/// @params
-/// @return
-/// @desc
-generateReqClass(response, className) {
-  var sb = StringBuffer();
-  (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
-    if (value['type'] == 'array' && (value['items'] as Map).containsKey(r'$ref')) {
-      sb.write('''
-     class ${getListGeneric(value)} {
-      ${generateReqVariables(response, getListGeneric(value))}
-      ${generateConstructor(response, getListGeneric(value))}
-      ${generateNamedConstructor(response, getListGeneric(value))}
-      ${generate2Json(response, getListGeneric(value))}
-     }
+      /// ${value['description']}
       ''');
-      generateReqClass(response, getListGeneric(value));
-    }
-  });
-  return sb.toString();
-}
-
-/// @params
-/// @params
-/// @return
-/// @desc generateReqVariables
-generateReqVariables(response, className) {
-  // get request dto from definitions
-  var sb = StringBuffer();
-  // printMsg(response.data['definitions'][className]);
-
-  print('------9999-------${response.data['definitions'][className]['properties']}');
-
-  (response.data['definitions'][className]['properties'] as Map).forEach((key, value) {
-    // print(key);
-    // print(value['type']);
     if (value['type'] == 'string') {
-      sb.write('''
-      /// ${value['description']};
-      ''');
       sb.write('''
       String? $key;
       ''');
-    } else if (value['type'] == 'integer') {
-      sb.write('''
-      /// ${value['description']};
-      ''');
+    } else if (value['type'] == 'integer' || value['type'] == 'number') {
       sb.write('''
       int? $key;
       ''');
     } else if (value['type'] == 'boolean') {
       sb.write('''
-      /// ${value['description']};
-      ''');
-      sb.write('''
       bool? $key;
       ''');
     } else if (value['type'] == 'array') {
       sb.write('''
-      /// ${value['description']};
-      ''');
-      sb.write('''
       List<${getListGeneric(value)}>? $key;
       ''');
-    }
-  });
-
-  return sb.toString();
-}
-
-/// @params
-/// @params
-/// @return
-/// @desc generateStruct
-void generateStruct(Response<dynamic> response) {
-  (response.data['definitions'] as Map).forEach((key, value) {
-    if (!(key as String).startsWith('ReplyEntity')) {
-      createFileRecursively(
-        'struct/$key.dart',
-        '''
-            /// @params
-            /// @return
-            /// @desc
-            class $key{
-              ${generateVariable(key, value)}
-            }
-            ''',
-      );
-    }
-  });
-}
-
-/// @params
-/// @params
-/// @return
-/// @desc
-generateVariable(String pKey, Map pValue) {
-  var sb = StringBuffer();
-  (pValue['properties'] as Map).forEach((key, value) {
-    if (value['type'] == 'string') {
-      sb.write('''/// ${value['description']}
-      String? $key;
-      ''');
-    } else if (value['type'] == 'integer') {
-      sb.write('''/// ${value['description']}
-      int? $key;
-      ''');
-    } else if (value['type'] == 'array' && (value as Map).containsKey('items')) {
+    } else if ((value as Map).containsKey(r'$ref')) {
       sb.write('''
-      class ${getListGeneric(value)}
+      ${value[r'$ref'].split('/').last}? $key;
       ''');
     }
   });
+
   return sb.toString();
 }
 
@@ -471,7 +304,6 @@ generateVariable(String pKey, Map pValue) {
 /// @desc
 getListGeneric(Map value) {
   if (value.containsKey('items')) {
-    // print(value['items']);
     if ((value['items'] as Map).containsKey(r'$ref')) {
       return (value['items'][r'$ref'] as String).getClassNameByRef();
     } else if (value['items']['type'] == 'integer') {
@@ -480,30 +312,6 @@ getListGeneric(Map value) {
       return 'String';
     }
   }
-}
-
-/// @params
-/// @params
-/// @return
-/// @desc
-generateDescription(List value) {
-  var sb = StringBuffer();
-  for (var value in value) {
-    if ((value['value'] as Map).containsKey('post')) {
-      sb.write('''///@ path ${value['path']}
-    ///@ desc ${value['value']['post']['summary']}
-    Future ${value['value']['post']['operationId']}() async{
-    }
-     ''');
-    } else {
-      sb.write('''///@ path ${value['path']}
-    ///@ desc ${value['value']['get']['summary']}
-    Future ${value['value']['get']['operationId']}() async{
-    }
-     ''');
-    }
-  }
-  return sb.toString();
 }
 
 void createFileRecursively(String filename, String content) {
