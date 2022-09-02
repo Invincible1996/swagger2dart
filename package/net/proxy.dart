@@ -1,6 +1,3 @@
-/// @date: 2022/7/12 13:43
-/// @author: kevin
-/// @description: dart
 // 是否启用代理
 const proxyEnable = false;
 

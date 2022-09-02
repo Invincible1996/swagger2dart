@@ -18,13 +18,12 @@ int calculate() {
 fetchData() async {
   print("请输入swagger api url");
   // Reading name of the Geek
-  // String? url = stdin.readLineSync();
+  String? url = stdin.readLineSync();
 
   // Printing the name
-  // print("swagger_url======$url");
+  print("swagger_url======$url");
 
-  BaseOptions options = BaseOptions()
-    ..baseUrl = 'https://t-k8s-app.visioneschool.com';
+  BaseOptions options = BaseOptions()..baseUrl = url!;
 
   Dio dio = Dio(options);
   // ..interceptors.add(
@@ -41,8 +40,7 @@ fetchData() async {
 
   var response = await dio.post('/swagger/visioncup/v2/api-docs');
 
-  var rootDir =
-      (response.data['info']['title'] as String).transformClassName2FileName();
+  var rootDir = (response.data['info']['title'] as String).transformClassName2FileName();
   await Directory('package').create();
   await Directory('package/net').create();
 
@@ -115,10 +113,8 @@ generateServiceContent(Map data) {
 /// @desc generateReturnContent
 generateReturnContent(Map data) {
   if (data.containsKey(r'$ref')) {
-    if ((data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() ==
-            'object' ||
-        (data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() ==
-            'boolean') {
+    if ((data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'object' ||
+        (data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'boolean') {
       return 'response;';
     }
     return '${(data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric()}.fromJson(response);';
@@ -131,18 +127,10 @@ generateReturnContent(Map data) {
 /// @desc generateResponseType
 generateResponseType(Map data) {
   if ((data['200']['schema'] as Map).containsKey(r'$ref')) {
-    return (data['200']['schema'][r'$ref'] as String)
-                    .getClassNameByRef()
-                    .getReplyEntityGeneric() ==
-                'object' ||
-            (data['200']['schema'][r'$ref'] as String)
-                    .getClassNameByRef()
-                    .getReplyEntityGeneric() ==
-                'boolean'
+    return (data['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'object' ||
+            (data['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() == 'boolean'
         ? 'dynamic'
-        : (data['200']['schema'][r'$ref'] as String)
-            .getClassNameByRef()
-            .getReplyEntityGeneric();
+        : (data['200']['schema'][r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric();
   } else {
     return 'dynamic';
   }
@@ -204,8 +192,7 @@ generate2Json(String className, Map data) {
   final Map<String, dynamic> data = {};
   ''');
   (data['properties'] as Map).forEach((key, value) {
-    if (value['type'] == 'array' &&
-        !(value['items'] as Map).containsKey('type')) {
+    if (value['type'] == 'array' && !(value['items'] as Map).containsKey('type')) {
       sb.write('''
       if ($key != null) {
       data['$key'] = $key!.map((v) => v.toJson()).toList();
@@ -256,8 +243,7 @@ generateNamedConstructors(String className, Map data) {
   $className.fromJson(Map<String, dynamic> json) {
   ''');
   (data['properties'] as Map).forEach((key, value) {
-    if (value['type'] == 'array' &&
-        !(value['items'] as Map).containsKey('type')) {
+    if (value['type'] == 'array' && !(value['items'] as Map).containsKey('type')) {
       sb.write('''
       if(json['$key'] != null){
         $key = <${getListGeneric(value)}>[];
