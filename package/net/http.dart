@@ -1,10 +1,9 @@
-import 'dart:io';
+  import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 
 import 'cache.dart';
 import 'proxy.dart';
-
 /// * @
 class Http {
   ///超时时间
@@ -137,3 +136,4 @@ class Http {
     return response.data;
   }
 }
+  
