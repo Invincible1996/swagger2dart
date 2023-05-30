@@ -61,26 +61,6 @@ extension StringExtension on String {
     return split("«").last.split("»").first;
   }
 
-  /// @desc
-  transformClassName2FileName() {
-    var str = '';
-    var newList = runes.map((int rune) {
-      var character = String.fromCharCode(rune);
-      if (character.toUpperCase() == character) {
-        str += '_${character.toLowerCase()}';
-        return '_${character.toLowerCase()}';
-      } else {
-        str += character;
-        return character;
-      }
-    }).toList();
-    // for (var item in newList) {
-    //   str += item;
-    // }
-    print(str.replaceFirst('_', ''));
-    return str.replaceFirst('_', '');
-  }
-
   transformTypeToDartClass() {
     switch (this) {
       case 'string':
@@ -89,6 +69,32 @@ extension StringExtension on String {
         return 'int';
       case 'boolean':
         return 'bool';
+      case 'number':
+        return 'double';
+      case 'array':
+        return 'List';
+      case 'object':
+        return 'Map';
+    }
+  }
+
+  getClassNameFromDefinitionWithList() {
+    int startIndex = indexOf("«");
+    int endIndex = lastIndexOf("»");
+
+    if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
+      String typeField = substring(startIndex + 1, endIndex);
+      print(typeField);
+      return typeField.split("«").last.split("»").first;
+    } else {
+      print("无法提取类型字段");
+      return '';
+    }
+  }
+
+  getTypeFromProperties() {
+    switch (this) {
+
     }
   }
 }

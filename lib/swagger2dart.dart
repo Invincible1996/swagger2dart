@@ -83,19 +83,48 @@ initDio() async {
 }
 
 var reqSb = StringBuffer();
+var structClassList = [];
 
 /// @desc generateServiceContent
 generateServiceContent(Map data) {
   var sb = StringBuffer();
+
+  // 根据definitions 生成struct
+  (data['definitions'] as Map).forEach((key, value) {
+    print(key);
+
+    // if (!(key as String).contains('»')) {
+    //   className = key;
+    // } else if ((key).contains('List')) {
+    //   className = key.getClassNameFromDefinitionWithList();
+    // } else {
+    //   className = key.getReplyEntityGeneric();
+    // }
+
+    if ((key as String).contains('»')) {
+      return;
+    } else {
+      var className = key;
+      // 根据key生成className
+      reqSb.write('''
+      class $className{
+        ${generateParamsByProperties(key, value['properties'])}
+        ${generateConstructorByProperties(className, key, value['properties'])}
+        ${generateFromJsonConstructorByProperties(className, key, value['properties'])}
+        ${generateToJsonFuncByProperties(className, key, value['properties'])}
+      }
+    ''');
+    }
+  });
+
   (data['paths'] as Map).forEach((key, value) {
-    if ((key as String).contains('web') || (key as String).contains('test')) {
+    if ((key as String).contains('web') || (key).contains('test')) {
     } else if ((value as Map).containsKey('get')) {
-      print('============== $key');
       var getDTO = request_get_dto.RequestGetDTO.fromJson(value['get']);
       // 将请求参数写到struct.dart
       // var reqSb = StringBuffer();
       reqSb.write('''
-      class ${(key as String).pathNameToClassName()}Req {
+      class ${(key).pathNameToClassName()}Req {
         ${generateGetReqParams(getDTO.parameters ?? [])} 
         ${generateGetReqConstructor(getDTO.parameters ?? [], (key).pathNameToClassName())} 
         ${generateGetReqFromJsonConstructor(getDTO.parameters ?? [], (key).pathNameToClassName())} 
@@ -121,13 +150,27 @@ generateServiceContent(Map data) {
       }
       ''');
     } else {
+      // post 请求
       var postDTO = request_post_dto.RequestPostDTO.fromJson(value['post']);
+      print('path==== $key');
+      // print(postDTO.parameters?.first.schema);
+      final schema = postDTO.parameters?.first.schema;
+      final hasParams = schema != null;
+      var className = '';
+      if (schema != null) {
+        className = schema[r'$ref'].split('/').last;
+        print(schema[r'$ref'].split('/').last);
+      }
+
+      final fucParams = hasParams ? '$className req' : '';
+
       sb.write('''
       ///@path $key
       ///@desc ${postDTO.summary}
-      ///@method GET
-      Future ${(key as String).pathToFuncName()}() async{
+      ///@method POST
+      Future ${(key).pathToFuncName()}($fucParams) async{
          try {
+         final response = await  await HttpUtils.post('$key', ${hasParams ? 'data: req.toJson()' : ''} );
         } catch (e) {
           rethrow;  
         }
@@ -141,13 +184,114 @@ generateServiceContent(Map data) {
   return sb.toString();
 }
 
+///@desc
+generateToJsonFuncByProperties(String className, String key, value) {
+  var sb = StringBuffer();
+  sb.write('''
+  Map<String, dynamic> toJson() {
+  final Map<String, dynamic> data = <String, dynamic>{};  
+  ''');
+
+  value.forEach((key, value) {
+    if (!(value as Map).containsKey(r'$ref')) {
+      sb.write('''
+    data['$key'] = $key;
+    ''');
+    }
+  });
+
+  sb.write('''
+    return data;
+  }
+  ''');
+
+  return sb.toString();
+}
+
+///@desc
+generateFromJsonConstructorByProperties(
+    String className, String key, properties) {
+  var sb = StringBuffer();
+  sb.write('''
+  $className.fromJson(Map<String, dynamic> json) {
+  ''');
+
+  properties.forEach((key, value) {
+    //
+    if (!(value as Map).containsKey(r'$ref')) {
+      sb.write('''
+    $key = json['$key'];
+    ''');
+    }
+  });
+
+  sb.write('''
+  }
+  ''');
+  return sb.toString();
+}
+
+///@desc
+generateConstructorByProperties(String className, String key, properties) {
+  var sb = StringBuffer();
+  sb.write('''
+  $className({
+  ''');
+  properties.forEach((key, value) {
+    //
+    if (!(value as Map).containsKey(r'$ref')) {
+      sb.write('''
+    this.$key,
+    ''');
+    }
+  });
+  sb.write('''
+  });
+  ''');
+  return sb.toString();
+}
+
+/// 根据properties 生成参数
+generateParamsByProperties(String key, Map properties) {
+  if (key.contains('«')) {
+    return '';
+  }
+  var sb = StringBuffer();
+  properties.forEach((key, value) {
+    //
+    if (!(value as Map).containsKey(r'$ref')) {
+      if (value['type'] == 'array') {
+        // 获取范型
+        if ((value['items'] as Map).containsKey(r'$ref')) {
+          var type = value['items'][r'$ref'].split('/').last;
+          sb.write('''
+        List<$type>? $key;
+        ''');
+        } else {
+          var type =
+              (value['items']['type'] as String).transformTypeToDartClass();
+          sb.write('''
+          List<$type>? $key;
+          ''');
+        }
+      } else {
+        sb.write('''
+    ${(value['type'] as String).transformTypeToDartClass()}? $key;
+    ''');
+      }
+    }
+  });
+
+  return sb.toString();
+}
+
 /// @desc generateGetReqToJsonFunc
 generateGetReqToJsonFunc(
     List<request_get_dto.Parameters> list, pathNameToClassName) {
   var sb = StringBuffer();
   sb.write('''
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
   ''');
   for (var e in list) {
     sb.write('''

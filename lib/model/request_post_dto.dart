@@ -23,20 +23,20 @@ class RequestPostDTO {
     if (json['parameters'] != null) {
       parameters = <Parameters>[];
       json['parameters'].forEach((v) {
-        parameters!.add(new Parameters.fromJson(v));
+        parameters!.add(Parameters.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['tags'] = this.tags;
-    data['summary'] = this.summary;
-    data['operationId'] = this.operationId;
-    data['consumes'] = this.consumes;
-    data['produces'] = this.produces;
-    if (this.parameters != null) {
-      data['parameters'] = this.parameters!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['tags'] = tags;
+    data['summary'] = summary;
+    data['operationId'] = operationId;
+    data['consumes'] = consumes;
+    data['produces'] = produces;
+    if (parameters != null) {
+      data['parameters'] = parameters!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -46,7 +46,7 @@ class Parameters {
   String? name;
   String? description;
   bool? required;
-  Schema? schema;
+  Map<String, dynamic>? schema;
 
   Parameters({this.name, this.description, this.required, this.schema});
 
@@ -54,34 +54,31 @@ class Parameters {
     name = json['name'];
     description = json['description'];
     required = json['required'];
-    schema =
-        json['schema'] != null ? new Schema.fromJson(json['schema']) : null;
+    schema = json['schema'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['name'] = this.name;
-    data['description'] = this.description;
-    data['required'] = this.required;
-    if (this.schema != null) {
-      data['schema'] = this.schema!.toJson();
-    }
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['name'] = name;
+    data['description'] = description;
+    data['required'] = required;
+    data['schema'] = schema;
     return data;
   }
 }
 
-class Schema {
-  String? ref;
+// class Schema {
+//   String? $ref;
 
-  Schema({this.ref});
+//   Schema({this.$ref});
 
-  Schema.fromJson(Map<String, dynamic> json) {
-    ref = json['$ref'];
-  }
+//   Schema.fromJson(Map<String, dynamic> json) {
+//     $ref = json['r$ref'];
+//   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['$ref'] = this.ref;
-    return data;
-  }
-}
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> data = new Map<String, dynamic>();
+//     data['r$ref'] = this.ref;
+//     return data;
+//   }
+// }
