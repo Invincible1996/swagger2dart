@@ -1,108 +1,235 @@
+class CommunityAttentionListReq {
+  int? communityId;
+  int? position;
+  int? status;
 
-  ///@desc 审核关注列表请求参数
-  class CommunityAttentionListReqDTO {
-      int? communityId;
-  CommunityAttentionListReqDTO({
-      this.communityId,
-});  CommunityAttentionListReqDTO.fromJsom(Map<String, dynamic> json) {
-      communityId = json['communityId'];
-}  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-      data['communityId'] =communityId;
-return data;}}  ///@desc 详情请求参数
-  class CommunityInfoReqDTO {
-      int? id;
-  CommunityInfoReqDTO({
-      this.id,
-});  CommunityInfoReqDTO.fromJsom(Map<String, dynamic> json) {
-      id = json['id'];
-}  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-      data['id'] =id;
-return data;}}  ///@desc 列表请求参数
-  class CommunityListReqDTO {
-      int? type;
-      int? pageStart;
-      int? pageSize;
-  CommunityListReqDTO({
-      this.type,
-      this.pageStart,
-      this.pageSize,
-});  CommunityListReqDTO.fromJsom(Map<String, dynamic> json) {
-      type = json['type'];
-      pageStart = json['pageStart'];
-      pageSize = json['pageSize'];
-}  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-      data['type'] =type;
-      data['pageStart'] =pageStart;
-      data['pageSize'] =pageSize;
-return data;}}  ///@desc 图文列表-倒序请求参数
-  class DiscoverArticleListReqDTO {
-      int? pageStart;
-      int? pageSize;
-  DiscoverArticleListReqDTO({
-      this.pageStart,
-      this.pageSize,
-});  DiscoverArticleListReqDTO.fromJsom(Map<String, dynamic> json) {
-      pageStart = json['pageStart'];
-      pageSize = json['pageSize'];
-}  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-      data['pageStart'] =pageStart;
-      data['pageSize'] =pageSize;
-return data;}}  ///@desc 大厅请求参数
-  class MissionHallReqDTO {
-      int? pageStart;
-      int? pageSize;
-  MissionHallReqDTO({
-      this.pageStart,
-      this.pageSize,
-});  MissionHallReqDTO.fromJsom(Map<String, dynamic> json) {
-      pageStart = json['pageStart'];
-      pageSize = json['pageSize'];
-}  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-      data['pageStart'] =pageStart;
-      data['pageSize'] =pageSize;
-return data;}}  ///@desc 查询请求参数
-  class OrderQueryReqDTO {
-      int? orderId;
-  OrderQueryReqDTO({
-      this.orderId,
-});  OrderQueryReqDTO.fromJsom(Map<String, dynamic> json) {
-      orderId = json['orderId'];
-}  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-      data['orderId'] =orderId;
-return data;}}  ///@desc 模拟app请求参数
-  class TestApploginReqDTO {
-      int? customerId;
-  TestApploginReqDTO({
-      this.customerId,
-});  TestApploginReqDTO.fromJsom(Map<String, dynamic> json) {
-      customerId = json['customerId'];
-}  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-      data['customerId'] =customerId;
-return data;}}  ///@desc check请求参数
-  class TestCheckReqDTO {
-      String? userID;
-  TestCheckReqDTO({
-      this.userID,
-});  TestCheckReqDTO.fromJsom(Map<String, dynamic> json) {
-      userID = json['userID'];
-}  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-      data['userID'] =userID;
-return data;}}  ///@desc testimport请求参数
-  class TestPayQueryReqDTO {
-      String? outRefundNo;
-  TestPayQueryReqDTO({
-      this.outRefundNo,
-});  TestPayQueryReqDTO.fromJsom(Map<String, dynamic> json) {
-      outRefundNo = json['outRefundNo'];
-}  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-      data['outRefundNo'] =outRefundNo;
-return data;}}
+  CommunityAttentionListReq({
+    this.communityId,
+    this.position,
+    this.status,
+  });
+  CommunityAttentionListReq.fromJson(Map<String, dynamic> json) {
+    communityId = json['communityId'];
+    position = json['position'];
+    status = json['status'];
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    communityId = communityId;
+    position = position;
+    status = status;
+    return data;
+  }
+}
+
+class CommunityInfoReq {
+  int? id;
+
+  CommunityInfoReq({
+    this.id,
+  });
+  CommunityInfoReq.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    id = id;
+    return data;
+  }
+}
+
+class CommunityListReq {
+  int? type;
+  int? pageStart;
+  int? pageSize;
+
+  CommunityListReq({
+    this.type,
+    this.pageStart,
+    this.pageSize,
+  });
+  CommunityListReq.fromJson(Map<String, dynamic> json) {
+    type = json['type'];
+    pageStart = json['pageStart'];
+    pageSize = json['pageSize'];
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    type = type;
+    pageStart = pageStart;
+    pageSize = pageSize;
+    return data;
+  }
+}
+
+class CustCreateTempUserReq {
+  CustCreateTempUserReq.fromJson(Map<String, dynamic> json) {}
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    return data;
+  }
+}
+
+class CustInfoReq {
+  CustInfoReq.fromJson(Map<String, dynamic> json) {}
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    return data;
+  }
+}
+
+class CustListTempUserReq {
+  CustListTempUserReq.fromJson(Map<String, dynamic> json) {}
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    return data;
+  }
+}
+
+class CustSameGroupAndCommunityReq {
+  String? userId;
+
+  CustSameGroupAndCommunityReq({
+    this.userId,
+  });
+  CustSameGroupAndCommunityReq.fromJson(Map<String, dynamic> json) {
+    userId = json['userId'];
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    userId = userId;
+    return data;
+  }
+}
+
+class DiscoverArticleListReq {
+  String? customerId;
+  int? pageStart;
+  int? pageSize;
+
+  DiscoverArticleListReq({
+    this.customerId,
+    this.pageStart,
+    this.pageSize,
+  });
+  DiscoverArticleListReq.fromJson(Map<String, dynamic> json) {
+    customerId = json['customerId'];
+    pageStart = json['pageStart'];
+    pageSize = json['pageSize'];
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    customerId = customerId;
+    pageStart = pageStart;
+    pageSize = pageSize;
+    return data;
+  }
+}
+
+class DiscoverInfoReq {
+  String? customerId;
+
+  DiscoverInfoReq({
+    this.customerId,
+  });
+  DiscoverInfoReq.fromJson(Map<String, dynamic> json) {
+    customerId = json['customerId'];
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    customerId = customerId;
+    return data;
+  }
+}
+
+class MissionHallReq {
+  int? pageStart;
+  int? pageSize;
+
+  MissionHallReq({
+    this.pageStart,
+    this.pageSize,
+  });
+  MissionHallReq.fromJson(Map<String, dynamic> json) {
+    pageStart = json['pageStart'];
+    pageSize = json['pageSize'];
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    pageStart = pageStart;
+    pageSize = pageSize;
+    return data;
+  }
+}
+
+class OpenApplicationUpdateReq {
+  String? applicationUid;
+  String? deviceType;
+
+  OpenApplicationUpdateReq({
+    this.applicationUid,
+    this.deviceType,
+  });
+  OpenApplicationUpdateReq.fromJson(Map<String, dynamic> json) {
+    applicationUid = json['applicationUid'];
+    deviceType = json['deviceType'];
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    applicationUid = applicationUid;
+    deviceType = deviceType;
+    return data;
+  }
+}
+
+class OrderQueryReq {
+  int? orderId;
+
+  OrderQueryReq({
+    this.orderId,
+  });
+  OrderQueryReq.fromJson(Map<String, dynamic> json) {
+    orderId = json['orderId'];
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    orderId = orderId;
+    return data;
+  }
+}
+
+class PaynotifyWxReq {
+  PaynotifyWxReq.fromJson(Map<String, dynamic> json) {}
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    return data;
+  }
+}
+
+class ProductListReq {
+  ProductListReq.fromJson(Map<String, dynamic> json) {}
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    return data;
+  }
+}
+
+class VipGetVipPermissionReq {
+  String? permissionType;
+  String? targetCode;
+
+  VipGetVipPermissionReq({
+    this.permissionType,
+    this.targetCode,
+  });
+  VipGetVipPermissionReq.fromJson(Map<String, dynamic> json) {
+    permissionType = json['permissionType'];
+    targetCode = json['targetCode'];
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    permissionType = permissionType;
+    targetCode = targetCode;
+    return data;
+  }
+}

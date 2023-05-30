@@ -16,7 +16,8 @@ extension StringExtension on String {
 
   ///@desc
   pathToFuncName() {
-    return firstLetterLowercase();
+    final s = pathNameToClassName();
+    return '${s.substring(0, 1).toLowerCase()}${s.substring(1)}';
   }
 
   /// @desc
@@ -78,5 +79,16 @@ extension StringExtension on String {
     // }
     print(str.replaceFirst('_', ''));
     return str.replaceFirst('_', '');
+  }
+
+  transformTypeToDartClass() {
+    switch (this) {
+      case 'string':
+        return 'String';
+      case 'integer':
+        return 'int';
+      case 'boolean':
+        return 'bool';
+    }
   }
 }

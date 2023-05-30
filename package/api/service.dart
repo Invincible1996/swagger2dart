@@ -1,292 +1,437 @@
-  /// GENERATED CODE - DO NOT MODIFY BY HAND
-  /// **************************************************************************
-  /// service.dart
-  /// **************************************************************************
+/// GENERATED CODE - DO NOT MODIFY BY HAND
+/// **************************************************************************
+/// service.dart
+/// **************************************************************************
 
-  import 'struct.dart';
-  import '../net/http_util.dart';
-  // class circle chat swagger 文档Service {
-  class ApiService {
-      /// @path /community/add
-    /// @desc 创建社区
-    static Future<Response> communityAdd(CommunityAddReqDTO req) async{
-     var path = '/community/add';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
+import '../net/http_util.dart';
+import 'struct.dart';
+
+class ApiService {
+  ///@path /community/add
+  ///@desc 创建社区
+  ///@method GET
+  Future communityAdd() async {
+    try {} catch (e) {
+      rethrow;
     }
-        /// @path /community/attention
-    /// @desc 关注-反向操作
-    static Future<Response> communityAttention(CommunityAttentionReqDTO req) async{
-     var path = '/community/attention';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /community/attention/list
-    /// @desc 审核关注列表
-    static Future<AttentionInfoDTO> communityAttentionList(CommunityAttentionListReqDTO req) async{
-    var path = '/community/attention/list';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return AttentionInfoDTO.fromJson(response);
-    }
-        /// @path /community/audit
-    /// @desc 审核社区
-    static Future<Response> communityAudit(CommunityAuditReqDTO req) async{
-     var path = '/community/audit';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /community/auditAttention
-    /// @desc 审核关注
-    static Future<Response> communityAuditAttention(CommunityAuditAttentionReqDTO req) async{
-     var path = '/community/auditAttention';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /community/delete
-    /// @desc 删除社区
-    static Future<Response> communityDelete(CommunityDeleteReqDTO req) async{
-     var path = '/community/delete';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /community/info
-    /// @desc 详情
-    static Future<CommunityInfoDTO> communityInfo(CommunityInfoReqDTO req) async{
-    var path = '/community/info';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return CommunityInfoDTO.fromJson(response);
-    }
-        /// @path /community/list
-    /// @desc 列表
-    static Future<CommunityDTO> communityList(CommunityListReqDTO req) async{
-    var path = '/community/list';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return CommunityDTO.fromJson(response);
-    }
-        /// @path /community/modify
-    /// @desc 修改社区
-    static Future<Response> communityModify(CommunityModifyReqDTO req) async{
-     var path = '/community/modify';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /cust/createUserSig
-    /// @desc 生成 UserSig -只保持三天的时间
-    static Future<string> custCreateUserSig() async{
-     var path = '/cust/createUserSig';
-    var response = await HttpUtils.post(path, );
-    return string.fromJson(response);
-    }
-        /// @path /cust/info
-    /// @desc 详情
-    static Future<CustomerInfoDTO> custInfo() async{
-    var path = '/cust/info';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return CustomerInfoDTO.fromJson(response);
-    }
-        /// @path /discover/article/add
-    /// @desc 图文新增
-    static Future<Response> discoverArticleAdd(DiscoverArticleAddReqDTO req) async{
-     var path = '/discover/article/add';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /discover/article/del
-    /// @desc 图文删除
-    static Future<Response> discoverArticleDel(DiscoverArticleDelReqDTO req) async{
-     var path = '/discover/article/del';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /discover/article/list
-    /// @desc 图文列表-倒序
-    static Future<ArticleDTO> discoverArticleList(DiscoverArticleListReqDTO req) async{
-    var path = '/discover/article/list';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return ArticleDTO.fromJson(response);
-    }
-        /// @path /discover/article/modify
-    /// @desc 图文修改
-    static Future<Response> discoverArticleModify(DiscoverArticleModifyReqDTO req) async{
-     var path = '/discover/article/modify';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /discover/comment/add
-    /// @desc 评论
-    static Future<Response> discoverCommentAdd(DiscoverCommentAddReqDTO req) async{
-     var path = '/discover/comment/add';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /discover/comment/del
-    /// @desc 删除评论
-    static Future<Response> discoverCommentDel(DiscoverCommentDelReqDTO req) async{
-     var path = '/discover/comment/del';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /discover/info
-    /// @desc 详情
-    static Future<DiscoverDTO> discoverInfo() async{
-    var path = '/discover/info';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return DiscoverDTO.fromJson(response);
-    }
-        /// @path /discover/modify
-    /// @desc 更新
-    static Future<Response> discoverModify(DiscoverModifyReqDTO req) async{
-     var path = '/discover/modify';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /discover/star/add
-    /// @desc 点赞
-    static Future<Response> discoverStarAdd(DiscoverStarAddReqDTO req) async{
-     var path = '/discover/star/add';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /discover/star/del
-    /// @desc 取消点赞
-    static Future<Response> discoverStarDel(DiscoverStarDelReqDTO req) async{
-     var path = '/discover/star/del';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /mission/add
-    /// @desc 发布任务
-    static Future<Response> missionAdd(MissionAddReqDTO req) async{
-     var path = '/mission/add';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /mission/complain
-    /// @desc 投诉任务
-    static Future<Response> missionComplain(MissionComplainReqDTO req) async{
-     var path = '/mission/complain';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /mission/delete
-    /// @desc 删除任务
-    static Future<Response> missionDelete(MissionDeleteReqDTO req) async{
-     var path = '/mission/delete';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /mission/hall
-    /// @desc 大厅
-    static Future<HallMissionDTO> missionHall(MissionHallReqDTO req) async{
-    var path = '/mission/hall';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return HallMissionDTO.fromJson(response);
-    }
-        /// @path /mission/modify
-    /// @desc 修改任务
-    static Future<Response> missionModify(MissionModifyReqDTO req) async{
-     var path = '/mission/modify';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /notify/
-    /// @desc 测试1
-    static Future<TencentResp> notify(NotifyReqDTO req) async{
-     var path = '/notify/';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return TencentResp.fromJson(response);
-    }
-        /// @path /open/loginOrRegister
-    /// @desc 登录、注册
-    static Future<SessionDTO> openLoginOrRegister(OpenLoginOrRegisterReqDTO req) async{
-     var path = '/open/loginOrRegister';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return SessionDTO.fromJson(response);
-    }
-        /// @path /open/pict
-    /// @desc 图片上传接口
-    static Future<Response> openPict(OpenPictReqDTO req) async{
-     var path = '/open/pict';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /open/sendCode
-    /// @desc 发送短信验证码
-    static Future<Response> openSendCode(OpenSendCodeReqDTO req) async{
-     var path = '/open/sendCode';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return Response.fromJson(response);
-    }
-        /// @path /order/prepay
-    /// @desc 预下单 返回微信单号
-    static Future<PrepayOrderResp> orderPrepay(OrderPrepayReqDTO req) async{
-     var path = '/order/prepay';
-    var response = await HttpUtils.post(path, data: req.toJson(),);
-    return PrepayOrderResp.fromJson(response);
-    }
-        /// @path /order/query
-    /// @desc 查询
-    static Future<OrderDTO> orderQuery(OrderQueryReqDTO req) async{
-    var path = '/order/query';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return OrderDTO.fromJson(response);
-    }
-        /// @path /paynotify/wx
-    /// @desc 微信订单支付通知
-    static Future<dynamic> paynotifyWx() async{
-     var path = '/paynotify/wx';
-    var response = await HttpUtils.post(path, );
-    return response;
-    }
-        /// @path /product/list
-    /// @desc 列表
-    static Future<ProductDTO> productList() async{
-    var path = '/product/list';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return ProductDTO.fromJson(response);
-    }
-        /// @path /test/1
-    /// @desc 测试1
-    static Future<dynamic> test1() async{
-    var path = '/test/1';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return response;
-    }
-        /// @path /test/applogin
-    /// @desc 模拟app
-    static Future<Response> testApplogin(TestApploginReqDTO req) async{
-    var path = '/test/applogin';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return Response.fromJson(response);
-    }
-        /// @path /test/check
-    /// @desc check
-    static Future<dynamic> testCheck(TestCheckReqDTO req) async{
-    var path = '/test/check';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return response;
-    }
-        /// @path /test/pay/query
-    /// @desc testimport
-    static Future<dynamic> testPayQuery(TestPayQueryReqDTO req) async{
-    var path = '/test/pay/query';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return response;
-    }
-        /// @path /test/testdelete
-    /// @desc testdelete
-    static Future<dynamic> testTestdelete() async{
-    var path = '/test/testdelete';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return response;
-    }
-        /// @path /test/testimport
-    /// @desc testimport
-    static Future<dynamic> testTestimport() async{
-    var path = '/test/testimport';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return response;
-    }
-    
   }
-  
+
+  ///@path /community/attention
+  ///@desc 关注-反向操作
+  ///@method GET
+  Future communityAttention() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /community/attention/list
+  ///@desc 审核关注列表
+  ///@method GET
+  Future communityAttentionList(CommunityAttentionListReq req) async {
+    try {
+      final response = await HttpUtils.get('/community/attention/list',
+          params: req.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /community/auditAttention
+  ///@desc 审核关注
+  ///@method GET
+  Future communityAuditAttention() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /community/cancelAsAdmin
+  ///@desc 取消管理员
+  ///@method GET
+  Future communityCancelAsAdmin() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /community/delete
+  ///@desc 删除社区
+  ///@method GET
+  Future communityDelete() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /community/info
+  ///@desc 详情
+  ///@method GET
+  Future communityInfo(CommunityInfoReq req) async {
+    try {
+      final response =
+          await HttpUtils.get('/community/info', params: req.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /community/list
+  ///@desc 列表
+  ///@method GET
+  Future communityList(CommunityListReq req) async {
+    try {
+      final response =
+          await HttpUtils.get('/community/list', params: req.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /community/modify
+  ///@desc 修改社区
+  ///@method GET
+  Future communityModify() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /community/setAsAdmin
+  ///@desc 设置成管理员
+  ///@method GET
+  Future communitySetAsAdmin() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /cust/createTempUser
+  ///@desc 生成临时用户
+  ///@method GET
+  Future custCreateTempUser() async {
+    try {
+      final response = await HttpUtils.get(
+        '/cust/createTempUser',
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /cust/createTmpUserSig
+  ///@desc 生成 临时 UserSig
+  ///@method GET
+  Future custCreateTmpUserSig() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /cust/createUserSig
+  ///@desc 生成 UserSig -只保持三天的时间
+  ///@method GET
+  Future custCreateUserSig() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /cust/info
+  ///@desc 详情
+  ///@method GET
+  Future custInfo() async {
+    try {
+      final response = await HttpUtils.get(
+        '/cust/info',
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /cust/listTempUser
+  ///@desc 查询所有临时用户
+  ///@method GET
+  Future custListTempUser() async {
+    try {
+      final response = await HttpUtils.get(
+        '/cust/listTempUser',
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /cust/sameGroupAndCommunity
+  ///@desc 共同的群组和社区
+  ///@method GET
+  Future custSameGroupAndCommunity(CustSameGroupAndCommunityReq req) async {
+    try {
+      final response = await HttpUtils.get('/cust/sameGroupAndCommunity',
+          params: req.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /discover/article/add
+  ///@desc 图文新增
+  ///@method GET
+  Future discoverArticleAdd() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /discover/article/del
+  ///@desc 图文删除
+  ///@method GET
+  Future discoverArticleDel() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /discover/article/list
+  ///@desc 图文列表-倒序-customerId如果没传，取当前会话
+  ///@method GET
+  Future discoverArticleList(DiscoverArticleListReq req) async {
+    try {
+      final response =
+          await HttpUtils.get('/discover/article/list', params: req.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /discover/article/modify
+  ///@desc 图文修改
+  ///@method GET
+  Future discoverArticleModify() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /discover/comment/add
+  ///@desc 评论
+  ///@method GET
+  Future discoverCommentAdd() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /discover/comment/del
+  ///@desc 删除评论
+  ///@method GET
+  Future discoverCommentDel() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /discover/info
+  ///@desc 详情-customerId如果没传，取当前会话
+  ///@method GET
+  Future discoverInfo(DiscoverInfoReq req) async {
+    try {
+      final response =
+          await HttpUtils.get('/discover/info', params: req.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /discover/modify
+  ///@desc 更新
+  ///@method GET
+  Future discoverModify() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /discover/star/add
+  ///@desc 点赞
+  ///@method GET
+  Future discoverStarAdd() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /discover/star/del
+  ///@desc 取消点赞
+  ///@method GET
+  Future discoverStarDel() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /mission/add
+  ///@desc 发布任务
+  ///@method GET
+  Future missionAdd() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /mission/complain
+  ///@desc 投诉任务
+  ///@method GET
+  Future missionComplain() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /mission/delete
+  ///@desc 删除任务
+  ///@method GET
+  Future missionDelete() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /mission/hall
+  ///@desc 大厅
+  ///@method GET
+  Future missionHall(MissionHallReq req) async {
+    try {
+      final response =
+          await HttpUtils.get('/mission/hall', params: req.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /mission/modify
+  ///@desc 修改任务
+  ///@method GET
+  Future missionModify() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /notify/
+  ///@desc 测试1
+  ///@method GET
+  Future notify() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /open/applicationUpdate
+  ///@desc app版本信息
+  ///@method GET
+  Future openApplicationUpdate(OpenApplicationUpdateReq req) async {
+    try {
+      final response =
+          await HttpUtils.get('/open/applicationUpdate', params: req.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /open/file
+  ///@desc 文件上传接口
+  ///@method GET
+  Future openFile() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /open/loginOrRegister
+  ///@desc 登录、注册
+  ///@method GET
+  Future openLoginOrRegister() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /open/pict
+  ///@desc 图片上传接口
+  ///@method GET
+  Future openPict() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /open/sendCode
+  ///@desc 发送短信验证码
+  ///@method GET
+  Future openSendCode() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /order/prepay
+  ///@desc 预下单 返回微信单号
+  ///@method GET
+  Future orderPrepay() async {
+    try {} catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /order/query
+  ///@desc 查询
+  ///@method GET
+  Future orderQuery(OrderQueryReq req) async {
+    try {
+      final response =
+          await HttpUtils.get('/order/query', params: req.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /paynotify/wx
+  ///@desc 微信订单支付通知
+  ///@method GET
+  Future paynotifyWx() async {
+    try {
+      final response = await HttpUtils.get(
+        '/paynotify/wx',
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /product/list
+  ///@desc 列表
+  ///@method GET
+  Future productList() async {
+    try {
+      final response = await HttpUtils.get(
+        '/product/list',
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ///@path /vip/getVipPermission
+  ///@desc 查询是否有权限
+  ///@method GET
+  Future vipGetVipPermission(VipGetVipPermissionReq req) async {
+    try {
+      final response =
+          await HttpUtils.get('/vip/getVipPermission', params: req.toJson());
+    } catch (e) {
+      rethrow;
+    }
+  }
+}

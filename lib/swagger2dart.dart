@@ -2,16 +2,19 @@ import 'dart:io';
 
 import 'package:dart_style/dart_style.dart';
 import 'package:dio/dio.dart';
-import 'package:swagger2dart/constant.dart';
 import 'package:swagger2dart/extension/string_extension.dart';
-import 'package:swagger2dart/util/file_util.dart';
-import './util/generate_struct_util.dart';
+import 'package:swagger2dart/model/request_get_dto.dart' as request_get_dto;
+import 'package:swagger2dart/model/request_post_dto.dart' as request_post_dto;
+
+import 'constant.dart';
 
 final formatter = DartFormatter();
 
 int calculate() {
   return 6 * 7;
 }
+
+final rootDir = 'api';
 
 /// @desc
 fetchData() async {
@@ -44,7 +47,7 @@ fetchData() async {
 
   // var rootDir =
   //     (response.data['info']['title'] as String).transformClassName2FileName();
-  var rootDir = 'api';
+
   await Directory('package').create();
   await Directory('package/net').create();
 
@@ -52,22 +55,20 @@ fetchData() async {
 
   await Directory('package/$rootDir').create();
 
-  // createFileRecursively('package/$rootDir/struct.dart', '''
-  // /// GENERATED CODE - DO NOT MODIFY BY HAND
-  // /// **************************************************************************
-  // /// struct.dart
-  // /// **************************************************************************
-  // ${generateStructContent(response.data)}
-  // ''');
+  createFileRecursively('package/$rootDir/struct.dart', '''
+  /// GENERATED CODE - DO NOT MODIFY BY HAND
+  /// **************************************************************************
+  /// struct.dart
+  /// **************************************************************************
+  ''');
   createFileRecursively('package/$rootDir/service.dart', '''
   /// GENERATED CODE - DO NOT MODIFY BY HAND
   /// **************************************************************************
   /// service.dart
   /// **************************************************************************
-
+  
   import 'struct.dart';
   import '../net/http_util.dart';
-  // class ${response.data['info']['title']}Service {
   class ApiService {
   ${generateServiceContent(response.data)}
   }
@@ -81,311 +82,130 @@ initDio() async {
   createFileRecursively('package/net/http_util.dart', Constant.httpUtil);
 }
 
+var reqSb = StringBuffer();
+
 /// @desc generateServiceContent
 generateServiceContent(Map data) {
   var sb = StringBuffer();
   (data['paths'] as Map).forEach((key, value) {
-    print('generateServiceContent========$key');
-    print('${(key as String).pathNameToClassName()}ReqDTO');
-    print(
-        'pathToFuncName==========${(key.pathNameToClassName() as String).pathToFuncName()}');
-
-    final funName = (key.pathNameToClassName() as String).pathToFuncName();
-    final reqClassName = '${key.pathNameToClassName()}ReqDTO';
-
-    if ((value as Map).containsKey('post')) {
-      sb.write('''
-    /// @path $key
-    /// @desc ${value['post']['summary']}
-    static Future<${generateResponseType(value['post']['responses'])}> $funName(${generatePostReq(value['post'], reqClassName)}) async{
-     var path = '$key';
-    var response = await HttpUtils.post(path, ${generatePostData(value['post'])});
-    return ${generateReturnContent(value['post']['responses']['200']['schema'])}
-    }
-    ''');
-    } else {
-      sb.write('''
-    /// @path $key
-    /// @desc ${value['get']['summary']}
-    static Future<${generateResponseType(value['get']['responses'])}> $funName(${generateGetReq(
-        value['get'],
-        reqClassName,
-        value['get']['summary'],
-      )}) async{
-    var path = '$key';
-    var response = await HttpUtils.get(path,params:req.toJson());
-     return ${generateReturnContent(value['get']['responses']['200']['schema'])}
-    }
-    ''');
-    }
-  });
-  return sb.toString();
-}
-
-/// @params [data]
-/// @return
-/// @desc generateReturnContent
-generateReturnContent(Map data) {
-  if (data.containsKey(r'$ref')) {
-    if ((data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() ==
-            'object' ||
-        (data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric() ==
-            'boolean') {
-      return 'response;';
-    }
-    return '${(data[r'$ref'] as String).getClassNameByRef().getReplyEntityGeneric()}.fromJson(response);';
-  }
-  return 'response;';
-}
-
-/// @params [data]
-/// @return
-/// @desc generateResponseType
-generateResponseType(Map data) {
-  if ((data['200']['schema'] as Map).containsKey(r'$ref')) {
-    return (data['200']['schema'][r'$ref'] as String)
-                    .getClassNameByRef()
-                    .getReplyEntityGeneric() ==
-                'object' ||
-            (data['200']['schema'][r'$ref'] as String)
-                    .getClassNameByRef()
-                    .getReplyEntityGeneric() ==
-                'boolean'
-        ? 'dynamic'
-        : (data['200']['schema'][r'$ref'] as String)
-            .getClassNameByRef()
-            .getReplyEntityGeneric();
-  } else {
-    return 'dynamic';
-  }
-}
-
-/// @desc
-generatePostData(Map data) {
-  if (data.containsKey('parameters')) {
-    return 'data: req.toJson(),';
-  } else {
-    return '';
-  }
-}
-
-genrateConstructorByParameters(String reqClassName, List parameters) {
-  var sb = StringBuffer();
-  sb.write('''
-  $reqClassName({
-''');
-  for (var item in parameters) {
-    sb.write('''
-      this.${item['name']},
-''');
-  }
-
-  sb.write('});');
-
-  return sb.toString();
-}
-
-///@desc
-
-///@desc
-generateGetReq(Map data, String reqClassName, String desc) {
-  if (data.containsKey('parameters')) {
-    //
-    var sb = StringBuffer();
-    sb.write('''
-  ///@desc $desc请求参数
-  class $reqClassName {
-''');
-    for (var item in data['parameters']) {
-      sb.write('''
-      ${transformJavaToDart(item['type'])}? ${item['name']};
-''');
-    }
-    sb.write(genrateConstructorByParameters(reqClassName, data['parameters']));
-    sb.write(genrateFromJsonConstructorByParameters(
-        reqClassName, data['parameters']));
-    sb.write(genrateToJsonByParameters(reqClassName, data['parameters']));
-    sb.write('}');
-
-    print(sb.toString());
-    //add to struct
-    addContentToFile('package/api/struct.dart', sb.toString());
-
-    return '$reqClassName req';
-  } else {
-    return '';
-  }
-}
-
-transformJavaToDart(type) {
-  switch (type) {
-    case 'integer':
-      return 'int';
-    case 'string':
-      return 'String';
-    case 'boolean':
-      return 'bool';
-    default:
-      return 'dynamic';
-  }
-}
-
-/// @desc
-generatePostReq(Map data, String reqClassName) {
-  // if (data.containsKey('parameters')) {
-  //   if (data['parameters'].first.containsKey('schema')) {
-  //     return '${(data['parameters'].first['schema'][r'$ref'] as String).getClassNameByRef()} ${data['parameters'].first['name']}';
-  //   } else {
-  //     return 'Base';
-  //   }
-  // } else {
-  //   return '';
-  // }
-  if (data.containsKey('parameters')) {
-    return '$reqClassName req';
-  } else {
-    return '';
-  }
-}
-
-/// @desc
-generateStructContent(Map value) {
-  var sb = StringBuffer();
-  (value['definitions'] as Map).forEach((key, value) {
-    if (!(key as String).contains('ReplyEntity')) {
-      sb.write('''
-     class  $key {
-     ${generateVariables(value)}
-     ${generateConstructors(key, value)}
-     ${generateNamedConstructors(key, value)}
-     ${generate2Json(key, value)}
-     }
+    if ((key as String).contains('web') || (key as String).contains('test')) {
+    } else if ((value as Map).containsKey('get')) {
+      print('============== $key');
+      var getDTO = request_get_dto.RequestGetDTO.fromJson(value['get']);
+      // 将请求参数写到struct.dart
+      // var reqSb = StringBuffer();
+      reqSb.write('''
+      class ${(key as String).pathNameToClassName()}Req {
+        ${generateGetReqParams(getDTO.parameters ?? [])} 
+        ${generateGetReqConstructor(getDTO.parameters ?? [], (key).pathNameToClassName())} 
+        ${generateGetReqFromJsonConstructor(getDTO.parameters ?? [], (key).pathNameToClassName())} 
+        ${generateGetReqToJsonFunc(getDTO.parameters ?? [], (key).pathNameToClassName())} 
+      }
       ''');
-    }
-  });
-  return sb.toString();
-}
+      // print(reqSb.toString());
 
-/// @desc generate2Json
-generate2Json(String className, Map data) {
-  var sb = StringBuffer();
-  sb.write('''
-  Map<String, dynamic> toJson() {
-  final Map<String, dynamic> data = {};
-  ''');
-  (data['properties'] as Map).forEach((key, value) {
-    if (value['type'] == 'array' &&
-        !(value['items'] as Map).containsKey('type')) {
+      final hasParams = getDTO.parameters?.isNotEmpty ?? false;
+
+      final className = (key).pathNameToClassName();
+
       sb.write('''
-      if ($key != null) {
-      data['$key'] = $key!.map((v) => v.toJson()).toList();
-    }
-      ''');
-    } else {
-      sb.write('''
-    data['$key']=$key;
-    ''');
-    }
-  });
-  sb.write('''
-  return data;
-  }
-  ''');
-
-  return sb.toString();
-}
-
-/// @desc generateConstructors
-generateConstructors(String className, Map data) {
-  var sb = StringBuffer();
-  sb.write('''
-  $className({
-  ''');
-  (data['properties'] as Map).forEach((key, _) {
-    sb.write('''
-    this.$key,
-    ''');
-  });
-  sb.write('''
-  });
-  ''');
-
-  return sb.toString();
-}
-
-/// @desc generateNamedConstructors
-generateNamedConstructors(String className, Map data) {
-  var sb = StringBuffer();
-  sb.write('''
-  $className.fromJson(Map<String, dynamic> json) {
-  ''');
-  (data['properties'] as Map).forEach((key, value) {
-    if (value['type'] == 'array' &&
-        !(value['items'] as Map).containsKey('type')) {
-      sb.write('''
-      if(json['$key'] != null){
-        $key = <${getListGeneric(value)}>[];
-        json['$key'].forEach((v){
-        $key!.add(${getListGeneric(value)}.fromJson(v));
-        });
+      ///@path $key
+      ///@desc ${getDTO.summary}
+      ///@method GET
+      Future ${key.pathToFuncName()}(${hasParams ? '${className}Req req' : ''}) async{
+        try {
+          final response = await HttpUtils.get('$key', ${hasParams ? 'params: req.toJson()' : ''} );
+        } catch (e) {
+          rethrow;  
+        }
       }
       ''');
     } else {
+      var postDTO = request_post_dto.RequestPostDTO.fromJson(value['post']);
       sb.write('''
-    $key = json['$key'];
-    ''');
+      ///@path $key
+      ///@desc ${postDTO.summary}
+      ///@method GET
+      Future ${(key as String).pathToFuncName()}() async{
+         try {
+        } catch (e) {
+          rethrow;  
+        }
+      }
+      ''');
     }
   });
-  sb.write('''
-  }
-  ''');
+
+  appendToFile(reqSb.toString());
+
   return sb.toString();
 }
 
-/// @desc generateVariables
-generateVariables(Map data) {
+/// @desc generateGetReqToJsonFunc
+generateGetReqToJsonFunc(
+    List<request_get_dto.Parameters> list, pathNameToClassName) {
   var sb = StringBuffer();
-  (data['properties'] as Map).forEach((key, value) {
+  sb.write('''
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+  ''');
+  for (var e in list) {
     sb.write('''
-      /// ${value['description']}
-      ''');
-    if (value['type'] == 'string') {
-      sb.write('''
-      String? $key;
-      ''');
-    } else if (value['type'] == 'integer' || value['type'] == 'number') {
-      sb.write('''
-      int? $key;
-      ''');
-    } else if (value['type'] == 'boolean') {
-      sb.write('''
-      bool? $key;
-      ''');
-    } else if (value['type'] == 'array') {
-      sb.write('''
-      List<${getListGeneric(value)}>? $key;
-      ''');
-    } else if ((value as Map).containsKey(r'$ref')) {
-      sb.write('''
-      ${value[r'$ref'].split('/').last}? $key;
-      ''');
-    }
-  });
-
+    ${e.name} = ${e.name};
+    ''');
+  }
+  sb.write('''
+  return data;
+  ''');
+  sb.write('}');
   return sb.toString();
 }
 
-/// @desc getListGeneric
-getListGeneric(Map value) {
-  if (value.containsKey('items')) {
-    if ((value['items'] as Map).containsKey(r'$ref')) {
-      return (value['items'][r'$ref'] as String).getClassNameByRef();
-    } else if (value['items']['type'] == 'integer') {
-      return 'int';
-    } else if (value['items']['type'] == 'string') {
-      return 'String';
-    }
+/// @desc generateGetReqFromJsonConstructor
+generateGetReqFromJsonConstructor(
+    List<request_get_dto.Parameters> list, pathNameToClassName) {
+  var sb = StringBuffer();
+  sb.write('''
+    ${pathNameToClassName}Req.fromJson(Map<String, dynamic> json) {
+            
+    ''');
+  for (var e in list) {
+    sb.write('''
+    ${e.name} = json['${e.name}'];
+    ''');
   }
+  sb.write('}');
+  return sb.toString();
+}
+
+/// 生成请求参数的构造函数
+generateGetReqConstructor(
+    List<request_get_dto.Parameters> list, String className) {
+  if (list.isEmpty) {
+    return '';
+  }
+  var sb = StringBuffer();
+  sb.write('''
+    ${className}Req({
+    ''');
+  for (var e in list) {
+    sb.write('''
+    this.${e.name},
+    ''');
+  }
+  sb.write('});');
+  return sb.toString();
+}
+
+/// 生成get请求参数
+generateGetReqParams(List<request_get_dto.Parameters> parameters) {
+  var sb = StringBuffer();
+  for (var e in parameters) {
+    sb.write('''
+    ${e.type?.transformTypeToDartClass()}? ${e.name}; 
+    ''');
+  }
+  return sb.toString();
 }
 
 /// @desc createFileRecursively
@@ -396,4 +216,10 @@ void createFileRecursively(String filename, String content) {
   file.writeAsString(content);
   // file.writeAsString(formatter.format(content));
   // }
+}
+
+File file = File('package/$rootDir/struct.dart');
+
+void appendToFile(String content) async {
+  await file.writeAsString(formatter.format(content), mode: FileMode.append);
 }

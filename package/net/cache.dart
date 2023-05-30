@@ -10,5 +10,3 @@ const cacheMaxAge = 1000;
 
 // 最大缓存数
 const cacheMaxCount = 100;
-
-  
