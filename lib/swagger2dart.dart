@@ -44,6 +44,8 @@ fetchData() async {
   // http://47.97.6.227:8081
 
   var response = await dio.get('http://47.97.6.227:8081/v2/api-docs');
+  // var response = await dio.get(
+  //     'https://u-k8s-app.visioneschool.com/swagger/qc-service/v2/api-docs');
 
   // var rootDir =
   //     (response.data['info']['title'] as String).transformClassName2FileName();
@@ -91,16 +93,6 @@ generateServiceContent(Map data) {
 
   // 根据definitions 生成struct
   (data['definitions'] as Map).forEach((key, value) {
-    print(key);
-
-    // if (!(key as String).contains('»')) {
-    //   className = key;
-    // } else if ((key).contains('List')) {
-    //   className = key.getClassNameFromDefinitionWithList();
-    // } else {
-    //   className = key.getReplyEntityGeneric();
-    // }
-
     if ((key as String).contains('»')) {
       return;
     } else {
@@ -184,7 +176,7 @@ generateServiceContent(Map data) {
   return sb.toString();
 }
 
-///@desc
+///@desc 根据properties生成toJson方法
 generateToJsonFuncByProperties(String className, String key, value) {
   var sb = StringBuffer();
   sb.write('''
@@ -194,9 +186,21 @@ generateToJsonFuncByProperties(String className, String key, value) {
 
   value.forEach((key, value) {
     if (!(value as Map).containsKey(r'$ref')) {
-      sb.write('''
+      if ((value as Map).containsKey('type') &&
+          value['type'] == 'array' &&
+          (value as Map).containsKey('items') &&
+          (value['items'] as Map).containsKey(r'$ref')) {
+        // 如果是数组
+        sb.write('''
+        if ($key != null) {
+      data['$key'] = this.$key!.map((v) => v.toJson()).toList();
+        }
+        ''');
+      } else {
+        sb.write('''
     data['$key'] = $key;
     ''');
+      }
     }
   });
 
@@ -217,11 +221,26 @@ generateFromJsonConstructorByProperties(
   ''');
 
   properties.forEach((key, value) {
-    //
     if (!(value as Map).containsKey(r'$ref')) {
-      sb.write('''
-    $key = json['$key'];
+      if ((value as Map).containsKey('type') &&
+          value['type'] == 'array' &&
+          (value as Map).containsKey('items') &&
+          (value['items'] as Map).containsKey(r'$ref')) {
+        // 如果是数组 从items 中获取类型
+        final className = (value['items'] as Map)[r'$ref'].split('/').last;
+        sb.write('''
+        if (json['$key'] != null) {
+      $key= <$className>[];
+      json['$key'].forEach((v) {
+        $key!.add($className.fromJson(v));
+      });
+    }
+        ''');
+      } else {
+        sb.write('''
+     $key = json['$key'];
     ''');
+      }
     }
   });
 
@@ -251,7 +270,7 @@ generateConstructorByProperties(String className, String key, properties) {
   return sb.toString();
 }
 
-/// 根据properties 生成参数
+/// 根据properties 生成成员变量
 generateParamsByProperties(String key, Map properties) {
   if (key.contains('«')) {
     return '';

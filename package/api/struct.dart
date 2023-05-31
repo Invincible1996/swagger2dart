@@ -176,7 +176,12 @@ class ArticleDTO {
   });
 
   ArticleDTO.fromJson(Map<String, dynamic> json) {
-    commentTreeDTOs = json['commentTreeDTOs'];
+    if (json['commentTreeDTOs'] != null) {
+      commentTreeDTOs = <CommentTreeDTO>[];
+      json['commentTreeDTOs'].forEach((v) {
+        commentTreeDTOs!.add(CommentTreeDTO.fromJson(v));
+      });
+    }
     content = json['content'];
     customerId = json['customerId'];
     faceUrl = json['faceUrl'];
@@ -194,7 +199,10 @@ class ArticleDTO {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['commentTreeDTOs'] = commentTreeDTOs;
+    if (commentTreeDTOs != null) {
+      data['commentTreeDTOs'] =
+          this.commentTreeDTOs!.map((v) => v.toJson()).toList();
+    }
     data['content'] = content;
     data['customerId'] = customerId;
     data['faceUrl'] = faceUrl;
@@ -726,16 +734,31 @@ class SameGroupAndCommunityDTO {
   });
 
   SameGroupAndCommunityDTO.fromJson(Map<String, dynamic> json) {
-    communityDTOs = json['communityDTOs'];
-    groupDTOs = json['groupDTOs'];
+    if (json['communityDTOs'] != null) {
+      communityDTOs = <CommunityDTO>[];
+      json['communityDTOs'].forEach((v) {
+        communityDTOs!.add(CommunityDTO.fromJson(v));
+      });
+    }
+    if (json['groupDTOs'] != null) {
+      groupDTOs = <GroupDTO>[];
+      json['groupDTOs'].forEach((v) {
+        groupDTOs!.add(GroupDTO.fromJson(v));
+      });
+    }
     sameCommunityNum = json['sameCommunityNum'];
     sameGroupNum = json['sameGroupNum'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['communityDTOs'] = communityDTOs;
-    data['groupDTOs'] = groupDTOs;
+    if (communityDTOs != null) {
+      data['communityDTOs'] =
+          this.communityDTOs!.map((v) => v.toJson()).toList();
+    }
+    if (groupDTOs != null) {
+      data['groupDTOs'] = this.groupDTOs!.map((v) => v.toJson()).toList();
+    }
     data['sameCommunityNum'] = sameCommunityNum;
     data['sameGroupNum'] = sameGroupNum;
     return data;
@@ -764,7 +787,12 @@ class CommentTreeDTO {
   });
 
   CommentTreeDTO.fromJson(Map<String, dynamic> json) {
-    commentTreeDTOs = json['commentTreeDTOs'];
+    if (json['commentTreeDTOs'] != null) {
+      commentTreeDTOs = <CommentTreeDTO>[];
+      json['commentTreeDTOs'].forEach((v) {
+        commentTreeDTOs!.add(CommentTreeDTO.fromJson(v));
+      });
+    }
     content = json['content'];
     customerId = json['customerId'];
     faceUrl = json['faceUrl'];
@@ -776,7 +804,10 @@ class CommentTreeDTO {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['commentTreeDTOs'] = commentTreeDTOs;
+    if (commentTreeDTOs != null) {
+      data['commentTreeDTOs'] =
+          this.commentTreeDTOs!.map((v) => v.toJson()).toList();
+    }
     data['content'] = content;
     data['customerId'] = customerId;
     data['faceUrl'] = faceUrl;
@@ -1020,7 +1051,12 @@ class HallMissionDTO {
   });
 
   HallMissionDTO.fromJson(Map<String, dynamic> json) {
-    communityDTOs = json['communityDTOs'];
+    if (json['communityDTOs'] != null) {
+      communityDTOs = <CommunityDTO>[];
+      json['communityDTOs'].forEach((v) {
+        communityDTOs!.add(CommunityDTO.fromJson(v));
+      });
+    }
     communityIds = json['communityIds'];
     content = json['content'];
     customerId = json['customerId'];
@@ -1033,7 +1069,10 @@ class HallMissionDTO {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['communityDTOs'] = communityDTOs;
+    if (communityDTOs != null) {
+      data['communityDTOs'] =
+          this.communityDTOs!.map((v) => v.toJson()).toList();
+    }
     data['communityIds'] = communityIds;
     data['content'] = content;
     data['customerId'] = customerId;
